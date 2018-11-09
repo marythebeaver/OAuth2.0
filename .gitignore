@@ -1,3 +1,5 @@
 .vagrant/
 database_setup.pyc
 restaurantmenu.db
+client_secrets.json
+so_project.py
