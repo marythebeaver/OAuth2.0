@@ -251,7 +251,10 @@ def newRestaurant():
 def editRestaurant(restaurant_id):
   editedRestaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
   user_id = getUserID(login_session['email'])
-
+  # authorization
+  if editedRestaurant.user_id != user_id:
+      message = "Sorry you are not the owner, you cannot edit the Restaurant"
+      return message
   if request.method == 'POST':
       if request.form['name']:
         editedRestaurant.name = request.form['name']
@@ -265,8 +268,11 @@ def editRestaurant(restaurant_id):
 @app.route('/restaurant/<int:restaurant_id>/delete/', methods = ['GET','POST'])
 def deleteRestaurant(restaurant_id):
   restaurantToDelete = session.query(Restaurant).filter_by(id = restaurant_id).one()
-  if 'username' not in login_session:
-      return redirect('/login')
+  user_id = getUserID(login_session['email'])
+  # authorization
+  if restaurantToDelete.user_id != user_id:
+      message = "Sorry you are not the owner, you cannot delete the Restaurant"
+      return message
 
   if request.method == 'POST':
     session.delete(restaurantToDelete)
@@ -293,9 +299,12 @@ def showMenu(restaurant_id):
 @app.route('/restaurant/<int:restaurant_id>/menu/new/',methods=['GET','POST'])
 def newMenuItem(restaurant_id):
   restaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
+  user_id = getUserID(login_session['email'])
+  # authorization
+  if restaurant.user_id != user_id:
+      message = "Sorry you are not the owner, you cannot add new item"
+      return message
 
-  if 'username' not in login_session:
-      return redirect('/login')
 
   if request.method == 'POST':
       newItem = MenuItem(name = request.form['name'],
@@ -313,12 +322,14 @@ def newMenuItem(restaurant_id):
 @app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/edit', methods=['GET','POST'])
 def editMenuItem(restaurant_id, menu_id):
 
-    if 'username' not in login_session:
-        return redirect('/login')
-
-
     editedItem = session.query(MenuItem).filter_by(id = menu_id).one()
     restaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
+    user_id = getUserID(login_session['email'])
+    # authorization
+    if restaurant.user_id != user_id:
+      message = "Sorry you are not the owner, you cannot edit the item"
+      return message
+
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
@@ -341,9 +352,12 @@ def editMenuItem(restaurant_id, menu_id):
 def deleteMenuItem(restaurant_id,menu_id):
     restaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
     itemToDelete = session.query(MenuItem).filter_by(id = menu_id).one()
+    user_id = getUserID(login_session['email'])
+    # authorization
+    if restaurant.user_id != user_id:
+      message = "Sorry you are not the owner, you cannot delete the item"
+      return message
 
-    if 'username' not in login_session:
-        return redirect('/login')
 
     if request.method == 'POST':
         session.delete(itemToDelete)
